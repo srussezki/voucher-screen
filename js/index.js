@@ -14,6 +14,12 @@ var context = {
 }
 
 
+// auto-refresh
+setTimeout(() => { location.reload() }, 60*60*1000);
+
+// job queue to handle disconnections
+setInterval(saveLogRetryJob, 10000);
+
 
 $(document).ready(function () {
 
@@ -25,7 +31,7 @@ $(document).ready(function () {
     if(e.key === 'Enter') {
       context.userId = context.idBuffer.join('');
       processUser(context.userId);
-      toggleMediaContainers();
+      showSplashScreen();
     } else {
       context.idBuffer.push(e.key);
     }
@@ -33,6 +39,7 @@ $(document).ready(function () {
   })
 
   preloadDiscounts();
+
 
   // --- DEBUG ---
   // context.userId = 233;
@@ -57,17 +64,48 @@ function resetBuffer() {
 }
 
 function processUser() {
-  console.log("processing user="+context.userId);
+  console.log("processing "+context.userId);
   $('#user-id').html(context.userId);
 
   showDiscount();
 
   if(context.userId) {
-    $.get(spreadsheetUrl, {
-      'UserId': context.userId,
-      'Store': context.storeKey
-    });
+    var data = {
+        'UserId': context.userId,
+        'Store': context.storeKey,
+        'Time': new Date()
+      };
+
+    saveLog(data);
   }
+}
+
+function saveLogRetryJob() {
+  var queue = JSON.parse(localStorage.getItem('queue') || '[]');
+
+  if(queue.length > 0)   {
+    saveLog(queue[0], true)
+      .then(() => {
+        queue.shift();
+        localStorage.setItem('queue', JSON.stringify(queue));
+      });
+  }
+}
+
+function saveLog(data, isRetry) {
+  return $.get(spreadsheetUrl, data)
+    .then(() => {
+      console.log(`${data.UserId} saved`);
+    })
+    .fail((e)=>{
+      console.log("failed");
+
+      if(!isRetry) {
+        var queue = JSON.parse(localStorage.getItem('queue') || '[]');
+        queue.push(data);
+        localStorage.setItem('queue', JSON.stringify(queue));
+      }
+    });
 }
 
 
@@ -118,26 +156,42 @@ function preloadDiscounts() {
         </div>`);
     })
 
+  }).fail( () => {
+    setTimeout(() => { location.reload() }, 60000);
   });
 }
 
+function showSplashScreen() {
+  toggleMediaContainers(true);
+}
 
-function toggleMediaContainers() {
+function hideSplashScreen() {
+  toggleMediaContainers(false);
+}
+
+function toggleMediaContainers(show) {
   var $video = $('.video-container'),
       $discounts = $('.discounts-container'),
-      video = document.getElementById('video');
+      video = document.getElementById('video'),
+      isOpen = !$discounts.hasClass('hidden');
 
-  if(!$discounts.hasClass('hidden')) {
+  if(show && isOpen) {
+    hideSplashScreen();
+    setTimeout(showSplashScreen, 100);
+    return;
+  }
+
+  if(show) {
+    $discounts.removeClass('hidden');
+    video.pause();
+    // video.currentTime = 0;
+
+    clearTimeout(window.splashScreenTimeout);
+    window.splashScreenTimeout = setTimeout(hideSplashScreen, SPLASHSCREEN_TIMEOUT);
+  } else {
     $video.removeClass('hidden');
     $discounts.addClass('hidden');
 
     video.play();
-  } else {
-    $discounts.removeClass('hidden');
-    // $video.addClass('hidden');
-    video.pause();
-    // video.currentTime = 0;
-
-    setTimeout(toggleMediaContainers, SPLASHSCREEN_TIMEOUT);
   }
 }
