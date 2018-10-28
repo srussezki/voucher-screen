@@ -29,9 +29,66 @@ video {
     to {}
 }
 
+.discounts-container {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: row wrap;
+}
+
+.discounts-container > * {
+  flex: 1 100%;
+  padding: 1ex;
+}
+
 .discounts {
     position: relative;
 }
+
+.discounts_headline {
+  height: 10%;
+}
+
+.discounts_picture {
+  flex: 1 auto;
+
+  text-align: center;
+
+  width: 60%;
+  height: 65%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.discounts_price {
+  flex: 1 auto;
+
+  width: 40%;
+  height: 65%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: row wrap;
+}
+
+.message-box {
+  height: 25%;
+}
+
+/* @media all and (min-width: 800px) {
+  .main    { flex: 3 0px; }
+  .aside-1 { order: 1; }
+  .main    { order: 2; }
+  .aside-2 { order: 3; }
+  .footer  { order: 4; }
+} */
+
+
 
 .discounts-container {
   animation-name: slide-down;
@@ -47,10 +104,10 @@ video {
 
 .discounts-container {
   position: absolute;
-  top: 100px;
-  bottom: 100px;
-  left: 60px;
-  right: 60px;
+  top: 50px;
+  bottom: 50px;
+  left: 30px;
+  right: 30px;
   z-index: 10;
 
   background: #fff;
@@ -75,28 +132,30 @@ video {
 
 
 .price-box {
-  position: absolute;
-  right: 100px;
-  top: 100px;
-  display: inline-block;
-  font-size: 100pt;
   white-space: nowrap;
 }
 
+.regular-price-container {
+  text-align: right;
+}
+
 .regular-price {
-  position: absolute;
-  right: 0;
-  height: 29%;
+  position: relative;
+  display: inline-block;
+
+  font-size: 5ex;
+
   padding: 0 0.8ex;
 
-  font-size: 30%;
   background-color: black;
   color: white;
 }
 
 .promo-price {
-  margin-top: 30%;
-  padding: 0 0.6ex;
+  font-size: 12ex;
+
+  padding: 0 0.3ex;
+
   font-weight: bold;
   background-color: var(--yellow-color);
 }
@@ -109,56 +168,77 @@ video {
 }
 
 .line {
-  position: relative;
+  position: absolute;
   z-index: 1;
-  top: -25%;
-  left: -50%;
-  width: 200%;
-  height: 1px;
+  top: 50%;
+  left: 0;
+  width: 97%;
+  height: 2px;
   background-color: red;
-  -webkit-transform: rotate(-45deg); /* Safari and Chrome */
-      -ms-transform: rotate(-45deg); /* IE 9 */
-          transform: rotate(-45deg);
+  -webkit-transform: rotate(-30deg); /* Safari and Chrome */
+      -ms-transform: rotate(-30deg); /* IE 9 */
+          transform: rotate(-30deg);
 }
 
 
-.user-message {
+
+/*
+.message-box {
+  background: green;
+
+  display: block;
+
   color: white;
+
+  font-size: xx-large;
+  padding: 0.4ex 0.8ex;
+
+  position: absolute;
+  bottom: 2ex;
+  left: 2ex;
+  right: 2ex;
+
+  border-radius: 0.5ex;
+
+  text-align: center;
+} */
+
+.message-box {
+  color: white;
+  font-weight: bold;
+  font-size: 150%;
+
+  margin: 10px;
+  padding: 10px;
+
   background-color: var(--magenta-color);
-
-  font-size: xx-large;
-  padding: 0.4ex 0.8ex;
-
-  position: absolute;
-  display: block;
-  bottom: 2ex;
-  left: 2ex;
-  right: 2ex;
-
-  border-radius: 0.5ex;
-
+  border-radius: 15px;
   text-align: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.user-error {
-  color: white;
+.message-box__error {
   background-color: var(--red-color);
-
-  font-size: xx-large;
-  padding: 0.4ex 0.8ex;
-
-  position: absolute;
-  display: block;
-  bottom: 2ex;
-  left: 2ex;
-  right: 2ex;
-
-  border-radius: 0.5ex;
-
-  text-align: center;
 }
-
+.message-box__error > .message-box_error {
+  display: block;
+}
+.message-box__error > .message-box_ok {
+  display: none;
+}
+.message-box_error {
+  display: none;
+}
 
 .user-id {
   font-weight: bold;
+  color:  var(--yellow-color);
+}
+
+.discounts_picture img {
+  max-width: 90%;
+  max-height: 90%;
 }

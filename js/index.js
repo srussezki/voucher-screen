@@ -1,46 +1,79 @@
+var SPLASHSCREEN_TIMEOUT = 10000;
+
+var spreadsheetUrl = 'https://script.google.com/macros/s/AKfycbzgkPo7XEECsH4xaqMB0cqxV9BKd5G7-eNyubC5KAjazgozxJU/exec';
+var storesUrl = 'https://script.google.com/macros/s/AKfycbz_x_LtmRjTvSE98oomKQ8nFybvd9_L7p8fwKsQDmgHuipG_X8/exec';
+var discountsUrl = 'https://script.google.com/macros/s/AKfycbw5FyGeGuV7JDHng-NhlSpASUyUOHn1QshrRKFW_ic1kIR7RYo/exec';
+
 var context = {
   idBuffer: [],
   userId: null,
   discounts: [],
   dicountPointer: null,
-  userHistory: {}
+  userHistory: {},
+  storeKey: localStorage.getItem('storeKey')
 }
 
 
-$('html').on('keydown', function(e) {
-  if(e.key === 'Enter') {
-    context.userId = context.idBuffer.join('');
-    processUser(context.userId);
-    toggleMediaContainers();
-  } else {
-    context.idBuffer.push(e.key);
+
+$(document).ready(function () {
+
+  if(!context.storeKey) {
+    return handleInitState();
   }
-  setTimeout(resetBuffer, 1200);
-})
 
-function isInt(value) {
-  return !isNaN(value) &&
-         parseInt(Number(value)) == value &&
-         !isNaN(parseInt(value, 10));
-}
+  $('html').on('keydown', function(e) {
+    if(e.key === 'Enter') {
+      context.userId = context.idBuffer.join('');
+      processUser(context.userId);
+      toggleMediaContainers();
+    } else {
+      context.idBuffer.push(e.key);
+    }
+    setTimeout(resetBuffer, 500);
+  })
+
+  preloadDiscounts();
+
+  // --- DEBUG ---
+  // context.userId = 233;
+  // setTimeout(() => {
+  //   var event = $.Event('keydown');
+  //       event.key = 7;
+  //       $('html').trigger(event);
+  //   var event = $.Event('keydown');
+  //       event.key = 'Enter';
+  //       $('html').trigger(event);
+  // }, 800)
+  // setTimeout(() => {processUser.bind(null, 123)}, 1000)
+
+});
+
+
+
+// --- FUNCTIONS ---
 
 function resetBuffer() {
   context.idBuffer = [];
 }
 
-function processUser(userId) {
+function processUser() {
   console.log("processing user="+context.userId);
-  $('#userField').html(context.userId);
+  $('#user-id').html(context.userId);
 
-  showDiscount(userId);
+  showDiscount();
+
+  if(context.userId) {
+    $.get(spreadsheetUrl, {
+      'UserId': context.userId,
+      'Store': context.storeKey
+    });
+  }
 }
 
 
-fetchFromSpreadsheet('1XY_qp9C9Qjazm635E-Bad_8kW0foA1SeET0CN2QLP8k');
-
-
-function showDiscount (userId) {
-  var pointer = context.userHistory[userId];
+function showDiscount () {
+  var userId = context.userId,
+      pointer = context.userHistory[userId];
 
   if(pointer == undefined && (context.dicountPointer == null || context.dicountPointer++ >= context.discounts.length - 1)) {
     context.dicountPointer = 0;
@@ -51,68 +84,41 @@ function showDiscount (userId) {
     context.userHistory[userId] = pointer;
   }
 
-  $(`.discount[data-discount]`).addClass('hidden');
-  $(`.discount[data-discount="${pointer}"]`).removeClass('hidden');
+  $(`[data-discount]`).addClass('hidden');
+  $(`[data-discount="${pointer}"]`).removeClass('hidden');
 
   if(isInt(userId)) {
-    $('.user-message').removeClass('hidden');
-    $('.user-error').addClass('hidden');
+    $('.message-box').removeClass('message-box__error');
     $('.user-id').html(userId);
   } else {
-    $('.user-message').addClass('hidden');
-    $('.user-error').removeClass('hidden');
+    $('.message-box').addClass('message-box__error');
   }
 }
 
-function renderAllDiscounts () {
-  context.discounts.forEach( (discount, i) => {
-    console.log(discount);
-    $('.discounts').append(`<div data-discount="${i}" class="discount hidden">
-      <h2>${discount.description}</h2>
-      <div class="discount-img-box"><img src="${discount.imagelink}"  /></div>
-      <div class="price-box">
-        <div class="regular-price">
-          <span>${splitPrice(discount.regularprice, 0)}</span>
-          <span class="cents">${splitPrice(discount.regularprice, 1)}</span>
-          <div class="line"></div>
-        </div>
-        <div class="promo-price">
-          <span>${splitPrice(discount.promoprice, 0)}</span>
-          <span class="cents">${splitPrice(discount.promoprice, 1)}</span>
-        </div>
-      </div>
-    </div>`);
-  })
-}
+function preloadDiscounts() {
+  $.get(discountsUrl).then(function(response) {
 
+    context.discounts = response.data;
 
-function prettifyGoogleSheetsJSON(data) {
-    for (var i = 0; i < data.feed.entry.length; i++) {
-        for (var key in data.feed.entry[i]) {
-            if (data.feed.entry[i].hasOwnProperty(key) && key.substr(0,4) === 'gsx$') {
-                // copy the value in the key up a level and delete the original key
-                data.feed.entry[i][key.substr(4)] = data.feed.entry[i][key].$t;
-                delete data.feed.entry[i][key];
-            }
-        }
-    }
-    return data.feed.entry;
-}
+    context.discounts.forEach( (discount, i) => {
+      $('.discounts_picture').append(`<img src="${discount.imageLink}" data-discount="${i}" class="hidden" />`);
 
+      $('.discounts_prices').append(`<div data-discount="${i}" class="price-box hidden">
+          <div class="regular-price-container">
+            <div class="regular-price">
+              <span>${splitPrice(discount.regularPrice, 0)}</span>
+              <span class="cents">${splitPrice(discount.regularPrice, 1)}</span>
+              <div class="line"></div>
+            </div>
+          </div>
+          <div class="promo-price">
+            <span>${splitPrice(discount.promoPrice, 0)}</span>
+            <span class="cents">${splitPrice(discount.promoPrice, 1)}</span>
+          </div>
+        </div>`);
+    })
 
-function fetchFromSpreadsheet(spreadsheetKey, sheetNumber){
-    var number = sheetNumber ? sheetNumber : 'od6',
-        spreadsheetUrl = "https://spreadsheets.google.com/feeds/list/"+spreadsheetKey+"/"+number+"/public/values?alt=json";
-
-    $.get(spreadsheetUrl)
-        .then( (resp) => {
-            return prettifyGoogleSheetsJSON(resp);
-        })
-        .then( data => {
-          context.discounts = JSPath.apply('. {.isonline === "yes"}', data);
-          renderAllDiscounts();
-// showDiscount(22)
-        });
+  });
 }
 
 
@@ -132,14 +138,6 @@ function toggleMediaContainers() {
     video.pause();
     // video.currentTime = 0;
 
-    setTimeout(toggleMediaContainers, 3000);
+    setTimeout(toggleMediaContainers, SPLASHSCREEN_TIMEOUT);
   }
 }
-
-
-function splitPrice(price, position) {
-  var decimal = price.indexOf(',', price) > -1 ? ',' : '.';
-  return price.split(decimal)[position];
-}
-
-// setTimeout(() => {toggleMediaContainers();}, 10)
