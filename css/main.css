@@ -1,0 +1,164 @@
+:root {
+  --magenta-color: #E6007D;
+  --yellow-color: #FFED00;
+  --black-color: #1D1D1B;
+  --red-color: red;
+}
+
+
+body {
+  overflow: hidden;
+  color: var(--black-color);
+}
+
+
+.video-container,
+video {
+  width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes slide-down {
+    from {
+      top: -2000px;
+      bottom: 2000px;
+    }
+    to {}
+}
+
+.discounts {
+    position: relative;
+}
+
+.discounts-container {
+  animation-name: slide-down;
+  animation-timing-function: ease-out;
+  animation-duration: 0.4s;
+}
+
+.video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.discounts-container {
+  position: absolute;
+  top: 100px;
+  bottom: 100px;
+  left: 60px;
+  right: 60px;
+  z-index: 10;
+
+  background: #fff;
+  border-radius: 20px;
+
+  padding: 50px;
+
+  box-shadow: 4px 8px 16px rgba(0, 0, 0, .5);
+}
+
+.discount-img-box {
+  width: 500px;
+  height: 500px;
+}
+
+.discount-img-box > img{
+  max-width: 500px;
+  max-height: 500px;
+}
+
+
+
+
+.price-box {
+  position: absolute;
+  right: 100px;
+  top: 100px;
+  display: inline-block;
+  font-size: 100pt;
+  white-space: nowrap;
+}
+
+.regular-price {
+  position: absolute;
+  right: 0;
+  height: 29%;
+  padding: 0 0.8ex;
+
+  font-size: 30%;
+  background-color: black;
+  color: white;
+}
+
+.promo-price {
+  margin-top: 30%;
+  padding: 0 0.6ex;
+  font-weight: bold;
+  background-color: var(--yellow-color);
+}
+
+.promo-price > .cents,
+.regular-price > .cents {
+  font-size: 60%;
+  vertical-align: super;
+  margin-left: -10%;
+}
+
+.line {
+  position: relative;
+  z-index: 1;
+  top: -25%;
+  left: -50%;
+  width: 200%;
+  height: 1px;
+  background-color: red;
+  -webkit-transform: rotate(-45deg); /* Safari and Chrome */
+      -ms-transform: rotate(-45deg); /* IE 9 */
+          transform: rotate(-45deg);
+}
+
+
+.user-message {
+  color: white;
+  background-color: var(--magenta-color);
+
+  font-size: xx-large;
+  padding: 0.4ex 0.8ex;
+
+  position: absolute;
+  display: block;
+  bottom: 2ex;
+  left: 2ex;
+  right: 2ex;
+
+  border-radius: 0.5ex;
+
+  text-align: center;
+}
+
+.user-error {
+  color: white;
+  background-color: var(--red-color);
+
+  font-size: xx-large;
+  padding: 0.4ex 0.8ex;
+
+  position: absolute;
+  display: block;
+  bottom: 2ex;
+  left: 2ex;
+  right: 2ex;
+
+  border-radius: 0.5ex;
+
+  text-align: center;
+}
+
+
+.user-id {
+  font-weight: bold;
+}
