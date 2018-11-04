@@ -154,6 +154,8 @@ function preloadDiscounts() {
             <span class="cents">${splitPrice(discount.promoPrice, 1)}</span>
           </div>
         </div>`);
+
+        $('.discounts_headline').append(`<h1 data-discount="${i}">${discount.description}</h1>`);
     })
 
   }).fail( () => {
